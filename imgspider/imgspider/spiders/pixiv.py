@@ -4,9 +4,9 @@ from imgspider.items import ImgItem
 from . import hasher
 import json
 from pixivpy3 import *
-def gt():
+def gt(hosts):
     api = ByPassSniApi()
-    api.hosts = 'https://210.140.131.226'
+    api.hosts = hosts
     api.set_auth("","VIDisi2zd9AhcB1VQRuoJB19HXHjT4QrUCcDTocjs0w")
     api.auth()
     return api.access_token
@@ -16,23 +16,23 @@ class PixivSpider(scrapy.Spider):
     name = 'pixiv'
     allowed_domains = ['pixiv.net','pximg.net']
     host = 'https://210.140.131.226'
-    access_token = 'mUbGxobKEgIO-ldroh-1lASSVSBBcaioWQx17qbczIU'
+    access_token = ''
     def start_requests(self):
         start = 80001968
-        headers = {'App-OS':'ios',
+        for pid in range(start,start + 100000):
+            headers = {'App-OS':'ios',
                    'App-OS-Version':'12.2',
                    'App-Version':'7.6.2',
                    'host': 'app-api.pixiv.net',
                    'User-Agent':'PixivIOSApp/7.6.2 (iOS 12.2; iPhone9,1)',
                    'Authorization':'Bearer %s' % self.access_token}
-        for pid in range(start,start + 100000):
             url = "%s/v1/illust/detail?illust_id=%s"%(self.host,pid)
             yield scrapy.Request(url=url,headers = headers,
             callback=self.dealImg)
 
     def dealImg(self,response):
         if response.status == 400:
-            self.access_token = gt()
+            self.access_token = gt(self.host)
             headers = {'App-OS':'ios',
                    'App-OS-Version':'12.2',
                    'App-Version':'7.6.2',
